@@ -1,20 +1,28 @@
 services:
   drlzh-dev-env:
-    # Build configuration for the CPU environment.
+    # Build configuration.
     build:
       context: .
       dockerfile: Dockerfile
-      # Pass UID and GID from the .env file as build arguments.
+      # UID/GID come from the .env file (README step 2). BASE_IMAGE and
+      # TORCH_VARIANT default to the GPU-capable variant; docker-compose.cpu.yml
+      # overrides them for a lean CPU-only build.
       args:
         UID: ${UID}
         GID: ${GID}
+        BASE_IMAGE: nvidia/cuda:12.9.1-runtime-ubuntu24.04
+        TORCH_VARIANT: cuda
     
     container_name: drlzh-dev-env
 
     # Volumes for data persistence and code mounting.
     volumes:
       - .:/home/coder/project:cached
-      - vscode-data:/home/coder/.local/share/code-server
+      # Persist ONLY user settings / keybindings across restarts. Extensions
+      # live in a sibling directory (.../code-server/extensions) and are
+      # deliberately not volume-mounted so image rebuilds ship fresh
+      # extension versions instead of being shadowed by a stale volume.
+      - vscode-user:/home/coder/.local/share/code-server/User
       # Mount a named volume to persist the poetry cache at runtime.
       - poetry-cache:/home/coder/.cache/pypoetry
 
@@ -34,5 +42,5 @@ services:
 
 # Define the named volumes for persisting data.
 volumes:
-  vscode-data:
+  vscode-user:
   poetry-cache:

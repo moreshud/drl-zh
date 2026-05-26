@@ -1,0 +1,65 @@
+[tool.poetry]
+name = "drl-zh"
+version = "2.0.0"
+package-mode = false
+description = "Deep Reinforcement Learning: Zero to Hero! (CPU-only variant)"
+authors = ["Alessio Della Motta <alessio.dellamotta@gmail.com>"]
+license = "MIT"
+
+# This is the CPU-only variant of the project metadata. It mirrors the
+# canonical pyproject.toml at the repo root with one difference: torch is
+# pulled from the PyTorch CPU index (~200 MB wheel) instead of PyPI's default
+# CUDA-bundled wheel (~2.5 GB). Used by the CPU Docker build (see
+# docker-compose.cpu.yml) and as a dev convenience for contributors without
+# a GPU or with a slow connection.
+#
+# When editing dependencies, update both files and regenerate both lockfiles:
+#   poetry lock                 # regenerates ./poetry.lock
+#   poetry -C cpu lock          # regenerates ./cpu/poetry.lock
+
+[tool.poetry.dependencies]
+python = ">=3.13,<3.14"
+gymnasium = { extras = [
+    "atari",
+    "box2d",
+    "mujoco",
+    "other",
+], version = "^1.3.0" }
+ale-py = "^0.11.2"
+pygame-ce = "^2.5.7"
+matplotlib = "^3.10.9"
+ipykernel = "^7.2.0"
+ipywidgets = "^8.1.8"
+notebook = "^7.5.6"
+moviepy = "^2.2.1"
+mujoco = "^3.8.1"
+torch = { version = "^2.12.0", source = "pytorch-cpu" }
+pandas = "^3.0.3"
+peft = "^0.19.1"
+minigrid = "^3.1.0"
+pettingzoo = "^1.26.1"
+mpe2 = "^1.1.0"
+pymunk = "^7.2.0"
+supersuit = "^3.10.0"
+transformers = "^5.9.0"
+poetry = "^2.4.1"
+seaborn = "^0.13.2"
+ray = { extras = ["default"], version = "^2.55.1" }
+optuna = "^4.8.0"
+plotly = "^6.7.0"
+kaleido = "^1.3.0"
+tensorboard = "^2.20.0"
+
+# Explicit priority: this source is only consulted for packages that reference
+# it by name (i.e., torch above). Everything else still resolves from PyPI.
+[[tool.poetry.source]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+priority = "explicit"
+
+[tool.black]
+line-length = 100
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,3 +1,6 @@
+# Local model assets (Kokoro TTS, etc.)
+.localassets/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -163,3 +166,12 @@ cython_debug/
 # Custom drlzh
 checkpoints/
 runs/
+
+# DRL Companion transcripts
+.companion/
+
+# Extension build artifacts
+extension/out/
+extension/node_modules/
+extension/*.vsix
+node_modules/

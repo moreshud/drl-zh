@@ -1,0 +1,16 @@
+# CPU-only build overlay — for contributors without a GPU or on slow
+# connections. Swaps the CUDA base image for plain ubuntu (~2 GB saved) and
+# installs torch from the PyTorch CPU index (~2.3 GB saved).
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.cpu.yml up --build -d
+#
+# This is a BUILD overlay — no runtime changes. Do not combine with
+# docker-compose.gpu.yml (CPU torch cannot use a GPU even if one is attached).
+
+services:
+  drlzh-dev-env:
+    build:
+      args:
+        BASE_IMAGE: ubuntu:24.04
+        TORCH_VARIANT: cpu

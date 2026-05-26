@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="{{cssUri}}" />
+  <title>DRL-ZH Companion</title>
+</head>
+<body>
+  <!-- Header -->
+  <div id="header">
+    <div class="header-top">
+      <button id="stopBtn" class="icon-btn hidden" title="Stop">&#9632;</button>
+      <button id="clearBtn" class="icon-btn" title="Clear conversation">&#128465;</button>
+      <button id="toggleBtn" class="icon-btn toggle-on" title="Pause Zee">&#9208;</button>
+      <button id="settingsBtn" class="icon-btn" title="Settings">&#9881;</button>
+    </div>
+    <div class="header-face">
+      <!-- Thought cloud anchor: the cloud is positioned absolutely within
+           this host so it floats above-right of Zee's face. Empty until a
+           thought_cloud message arrives from the host. -->
+      <div id="thoughtCloudHost"></div>
+
+      <!-- Subtle teal particle aura — drifts slowly in idle, livens up when
+           Zee is listening or speaking. Decorative; aria-hidden. -->
+      <div class="zee-particles" aria-hidden="true">
+        <span class="particle p1"></span>
+        <span class="particle p2"></span>
+        <span class="particle p3"></span>
+        <span class="particle p4"></span>
+        <span class="particle p5"></span>
+        <span class="particle p6"></span>
+      </div>
+
+      <svg id="zeeFace" class="zee-face" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" data-state="idle" role="img" aria-label="Zee avatar">
+        <defs>
+          <radialGradient id="zeeHead" cx="35%" cy="22%" r="85%">
+            <stop offset="0%" stop-color="#7FE3DB" />
+            <stop offset="35%" stop-color="#3FB8AF" />
+            <stop offset="100%" stop-color="#153F3C" />
+          </radialGradient>
+          <radialGradient id="zeeSpecular" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="rgba(255,255,255,0.55)" />
+            <stop offset="70%" stop-color="rgba(255,255,255,0.08)" />
+            <stop offset="100%" stop-color="rgba(255,255,255,0)" />
+          </radialGradient>
+          <radialGradient id="zeeVisor" cx="50%" cy="28%" r="82%">
+            <stop offset="0%" stop-color="#2A3A3D" />
+            <stop offset="65%" stop-color="#0E1C1E" />
+            <stop offset="100%" stop-color="#050B0C" />
+          </radialGradient>
+          <radialGradient id="zeeEye" cx="40%" cy="40%" r="65%">
+            <stop offset="0%" stop-color="#E9FFFD" />
+            <stop offset="55%" stop-color="#6FE6DE" />
+            <stop offset="100%" stop-color="#3FB8AF" />
+          </radialGradient>
+          <filter id="zeeEyeGlow" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="1.4" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <filter id="zeeMouthGlow" x="-30%" y="-50%" width="160%" height="200%">
+            <feGaussianBlur stdDeviation="0.9" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+
+        <g class="face-body">
+          <!-- Head dome -->
+          <rect class="head" x="12" y="10" width="96" height="100" rx="48" ry="50" fill="url(#zeeHead)" />
+          <!-- Rim highlight around dome top -->
+          <path class="head-rim" d="M 16 46 Q 20 16 60 14 Q 100 16 104 46" stroke="rgba(255,255,255,0.35)" stroke-width="1" fill="none" stroke-linecap="round" />
+          <!-- Specular highlight on upper-left -->
+          <ellipse class="specular" cx="42" cy="30" rx="20" ry="12" fill="url(#zeeSpecular)" />
+
+          <!-- Visor -->
+          <rect class="visor" x="20" y="42" width="80" height="38" rx="19" ry="19" fill="url(#zeeVisor)" />
+          <!-- Inset visor rim -->
+          <rect class="visor-rim" x="20.5" y="42.5" width="79" height="37" rx="18.5" ry="18.5" fill="none" stroke="rgba(63, 184, 175, 0.3)" stroke-width="0.8" />
+          <!-- Visor top sheen -->
+          <path class="visor-sheen" d="M 26 48 Q 60 44 94 48" stroke="rgba(127, 227, 219, 0.2)" stroke-width="0.6" fill="none" />
+
+          <!-- Eyes -->
+          <g class="eyes" filter="url(#zeeEyeGlow)">
+            <circle class="eye eye-left" cx="44" cy="61" r="4.2" fill="url(#zeeEye)" />
+            <circle class="eye eye-right" cx="76" cy="61" r="4.2" fill="url(#zeeEye)" />
+          </g>
+
+          <g class="mouth-inner" filter="url(#zeeMouthGlow)">
+            <!-- Idle: gentle smile -->
+            <path class="mouth-flat" d="M 48 91 Q 60 96 72 91" stroke="#5FD3CB" stroke-width="1.8" stroke-linecap="round" fill="none" />
+            <!-- Thinking: 3 dots along the smile curve -->
+            <g class="mouth-dots">
+              <circle class="dot dot-1" cx="50" cy="92" r="1.5" fill="#7FE3DB" />
+              <circle class="dot dot-2" cx="60" cy="93.5" r="1.5" fill="#7FE3DB" />
+              <circle class="dot dot-3" cx="70" cy="92" r="1.5" fill="#7FE3DB" />
+            </g>
+            <!-- Speaking: waveform centred on the smile baseline -->
+            <path class="mouth-wave" d="M 48 94 Q 51 92 54 94 T 60 94 T 66 94 T 72 94" stroke="#7FE3DB" stroke-width="1.8" fill="none" stroke-linecap="round" />
+          </g>
+
+          <!-- Neck/base hint -->
+          <rect class="neck" x="52" y="108" width="16" height="4" rx="2" fill="rgba(20, 60, 58, 0.55)" />
+        </g>
+      </svg>
+      <span class="zee-name">ZEE</span>
+      <span id="tokenCounter" class="token-counter hidden" title="Token usage"></span>
+    </div>
+  </div>
+
+  <!-- Context pill -->
+  <div id="contextBar">
+    <span id="contextPill">Open a course notebook to get started.</span>
+    <div id="modeToggle" class="hidden">
+      <button id="chatModeBtn" class="mode-btn active">Chat</button>
+      <button id="voiceModeBtn" class="mode-btn">Voice</button>
+    </div>
+  </div>
+
+  <!-- Main panels (only one visible at a time) -->
+
+  <!-- Onboarding -->
+  <div id="onboardingPanel" class="panel hidden">
+    <div class="onboarding-content">
+      <h2>Meet Zee</h2>
+      <p>Your study partner for Deep Reinforcement Learning. Zee reads along with your notebook, nudges you with a hint when you're stuck, and never hands over the answer.</p>
+      <ul>
+        <li>Knows which concept you're working on right now</li>
+        <li>Chats by text or by voice &mdash; whichever keeps you in flow</li>
+        <li>Voice runs locally on your machine; only the LLM talks to the cloud</li>
+      </ul>
+
+      <h3>Pick Zee's brain</h3>
+      <div id="onboardingProviders" class="provider-group">
+        <label class="provider-option selected" data-provider="gemini">
+          <input type="radio" name="onb-llm" value="gemini" checked />
+          <span class="provider-name">Gemini <span class="badge recommended">&#11088; Recommended — free to use</span></span>
+          <span class="provider-desc">Google Gemini 2.5 Flash. Free tier, one-click sign-in with a Google account at aistudio.google.com</span>
+        </label>
+        <label class="provider-option" data-provider="openai">
+          <input type="radio" name="onb-llm" value="openai" />
+          <span class="provider-name">OpenAI (GPT-4o)</span>
+          <span class="provider-desc">Requires an OpenAI API key.</span>
+        </label>
+        <label class="provider-option" data-provider="anthropic">
+          <input type="radio" name="onb-llm" value="anthropic" />
+          <span class="provider-name">Anthropic (Claude)</span>
+          <span class="provider-desc">Requires an Anthropic API key.</span>
+        </label>
+        <label class="provider-option" data-provider="groq">
+          <input type="radio" name="onb-llm" value="groq" />
+          <span class="provider-name">Groq</span>
+          <span class="provider-desc">Fast, free, no billing required. Llama 3.3 70B. Get a free key at console.groq.com</span>
+        </label>
+      </div>
+
+      <div id="onboardingKeyField" class="key-field">
+        <label id="onbKeyLabel">Google AI Studio key</label>
+        <div class="key-input-row">
+          <input id="onbKeyInput" type="password" placeholder="AIza..." autofocus />
+          <button id="onbKeyToggle" class="icon-btn" title="Show/hide">&#128065;</button>
+        </div>
+        <div id="onbKeyStatus" class="key-status"></div>
+        <a id="onbKeyLink" href="https://aistudio.google.com" target="_blank" class="helper-link">Get a free key &rarr;</a>
+      </div>
+
+      <h3>Tell Zee about you (optional)</h3>
+      <p class="onb-hint">Zee adapts explanations to your background — skip if you&rsquo;d rather introduce yourself later.</p>
+      <div class="skill-group" id="onbSkillGroup">
+        <label class="skill-option"><input type="radio" name="onb-skill" value="none" /><span>New to RL</span></label>
+        <label class="skill-option"><input type="radio" name="onb-skill" value="some" /><span>Some RL background</span></label>
+        <label class="skill-option"><input type="radio" name="onb-skill" value="experienced" /><span>Comfortable with RL</span></label>
+      </div>
+      <label class="goal-label" for="onbGoal">What do you want to get out of this course?</label>
+      <textarea id="onbGoal" class="goal-input" rows="2" placeholder="e.g. apply RL to robotics control, get a research-track foundation, sharpen fundamentals..."></textarea>
+
+      <button id="onbStartBtn" class="primary-btn" disabled>Say hi to Zee</button>
+    </div>
+  </div>
+
+  <!-- Chat / Transcript -->
+  <div id="transcriptPanel" class="panel hidden">
+    <!-- No-key warning banner (shown when LLM has no API key) -->
+    <div id="noKeyBanner" class="hidden">
+      <span id="noKeyBannerText">No API key configured &mdash; Zee can&rsquo;t respond yet.</span>
+      <button id="noKeySettingsBtn" class="small-btn">Set up &rarr;</button>
+    </div>
+
+    <!-- Empty state: shown when no course notebook is open. Chat still
+         works. Visible by default so a fresh load with no notebook focused
+         doesn't leave the panel blank — chat.js hides it once a real
+         context_update arrives with a notebook. The description text is
+         injected from META_MODE_COPY (constants.ts) so the LLM prompt and
+         the visible card never drift. -->
+    <div id="noNotebookState">
+      <p class="empty-title">Hi, I&rsquo;m Zee.</p>
+      <p class="empty-desc">{{META_MODE_DESCRIPTION_HTML}}</p>
+    </div>
+
+    <div id="transcript"></div>
+
+  </div>
+
+  <!-- Settings -->
+  <div id="settingsPanel" class="panel hidden">
+    <div class="settings-content">
+      <h3>Zee's brain</h3>
+      <div id="settingsLLMProviders" class="provider-group">
+        <label class="provider-option selected" data-provider="gemini">
+          <input type="radio" name="set-llm" value="gemini" checked />
+          <span class="provider-name">Gemini <span class="badge recommended">&#11088; Recommended — free to use</span></span>
+          <span class="provider-desc">Google Gemini 2.5 Flash. Free tier, one-click sign-in with a Google account at aistudio.google.com</span>
+        </label>
+        <label class="provider-option" data-provider="openai">
+          <input type="radio" name="set-llm" value="openai" />
+          <span class="provider-name">OpenAI (GPT-4o)</span>
+          <span class="provider-desc">Requires an OpenAI API key.</span>
+        </label>
+        <label class="provider-option" data-provider="anthropic">
+          <input type="radio" name="set-llm" value="anthropic" />
+          <span class="provider-name">Anthropic (Claude)</span>
+          <span class="provider-desc">Requires an Anthropic API key.</span>
+        </label>
+        <label class="provider-option" data-provider="groq">
+          <input type="radio" name="set-llm" value="groq" />
+          <span class="provider-name">Groq</span>
+          <span class="provider-desc">Fast, free, no billing required. Llama 3.3 70B. Get a free key at console.groq.com</span>
+        </label>
+      </div>
+
+      <div id="settingsKeyField" class="key-field">
+        <label id="setKeyLabel">Google AI Studio key</label>
+        <div class="key-input-row">
+          <input id="setKeyInput" type="password" placeholder="AIza..." />
+          <button id="setKeyToggle" class="icon-btn" title="Show/hide">&#128065;</button>
+        </div>
+        <div id="setKeyStatus" class="key-status"></div>
+        <a id="setKeyLink" href="https://aistudio.google.com" target="_blank" class="helper-link">Get a free key &rarr;</a>
+      </div>
+
+      <div id="settingsModelField" class="model-field">
+        <label id="setModelLabel">Gemini model</label>
+        <input id="setModelInput" type="text" placeholder="gemini-2.5-flash" spellcheck="false" />
+        <p id="setModelHint" class="settings-hint">Leave blank to use the default model for this provider.</p>
+      </div>
+
+      <h3>Voice</h3>
+      <p class="tts-note">&#127908; <strong>Voice input</strong> uses Moonshine, a compact English ASR model that runs locally on your CPU.<br><br>&#128266; <strong>Voice output</strong> uses Kokoro, a high-quality neural voice that also runs locally. Both models (~250 MB combined) download automatically on first use — no API key required.</p>
+
+      <div class="settings-row">
+        <label>Speech rate
+          <input id="speechRateSlider" type="range" min="0.75" max="1.5" step="0.05" value="1.0" />
+          <span id="speechRateValue">1.0x</span>
+        </label>
+      </div>
+
+      <div class="settings-row">
+        <button id="testVoiceBtn" class="small-btn">Test voice</button>
+      </div>
+
+      <div class="settings-row">
+        <label class="toggle-label">
+          <input id="voiceResponsesToggle" type="checkbox" checked />
+          Voice responses
+        </label>
+      </div>
+
+      <div class="settings-row">
+        <label>Mic sensitivity
+          <select id="micSensitivitySelect">
+            <option value="quiet">Quiet room</option>
+            <option value="normal" selected>Normal</option>
+            <option value="noisy">Noisy environment</option>
+          </select>
+        </label>
+        <p class="settings-hint">Zee auto-calibrates to your ambient noise. This nudges how eagerly it picks up your voice &mdash; pick "Noisy" if it triggers on background sounds, or "Quiet" if it misses soft speech.</p>
+      </div>
+
+      <h3>Interaction</h3>
+      <div class="settings-row">
+        <label>Default mode
+          <select id="defaultModeSelect">
+            <option value="chat">Chat</option>
+            <option value="voice">Voice</option>
+          </select>
+        </label>
+      </div>
+
+      <hr />
+
+      <div class="settings-row">
+        <button id="resetZeeBtn" class="small-btn danger">Reset Zee</button>
+        <p class="settings-hint">Clears all settings, API keys, and chat history for every notebook, then restarts the onboarding wizard.</p>
+      </div>
+
+      <button id="settingsBackBtn" class="primary-btn">Done</button>
+    </div>
+  </div>
+
+  <!-- Input bar -->
+  <div id="inputBar" class="hidden">
+    <!-- Plot-attachment preview: a small thumbnail + cell label that shows
+         once the student has attached a plot to their next message. Auto-
+         clears on send. -->
+    <div id="attachmentPreview" class="hidden">
+      <img id="attachmentThumb" class="attachment-thumb" alt="Plot thumbnail" />
+      <span id="attachmentLabel" class="attachment-label"></span>
+      <button id="attachmentDetach" class="icon-btn attachment-detach" title="Remove attachment">&times;</button>
+    </div>
+    <!-- Chat input -->
+    <div id="chatInput">
+      <textarea id="chatTextField" rows="1" placeholder="Ask anything…  (Shift+Enter for newline)"></textarea>
+      <button id="chatAttachBtn" class="icon-btn attach-btn hidden" title="Attach plot from a nearby cell to your next message">&#128202;</button>
+      <button id="chatUndoBtn" class="icon-btn undo-btn hidden" title="Undo last turn (removes you + Zee from history)">&#8634;</button>
+      <button id="chatSendBtn" class="icon-btn" title="Send">&#10148;</button>
+    </div>
+    <!-- Voice visualiser -->
+    <div id="voiceInput" class="hidden">
+      <canvas id="voiceCanvas" width="300" height="26"></canvas>
+      <!-- Pulsing red dot doubles as the mute toggle (click to mute). Merges
+           two previous controls (status dot + 🎙 button) into one. -->
+      <button id="micIndicator" class="mic-dot" title="Click to mute microphone" aria-label="Microphone is active — click to mute">&#9679;</button>
+      <button id="sendNowBtn" class="icon-btn" title="Send now — transcribe what you said (useful in noisy environments)">&#10148;</button>
+      <button id="voiceAttachBtn" class="icon-btn attach-btn hidden" title="Attach plot from a nearby cell to your next message">&#128202;</button>
+      <button id="voiceUndoBtn" class="icon-btn undo-btn hidden" title="Undo last turn (removes you + Zee from history)">&#8634;</button>
+      <button id="voiceStopBtn" class="icon-btn hidden" title="Stop audio">&#9632;</button>
+      <span id="voiceStatus" class="voice-status hidden"></span>
+      <!-- Inline voice warning (no STT key, or TTS note) -->
+      <div id="voiceWarning" class="hidden">
+        <span id="voiceWarningText"></span>
+        <button id="voiceWarnSettingsBtn" class="small-btn">Settings &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paused overlay -->
+  <div id="pausedOverlay" class="hidden">
+    <div class="paused-content">
+      <div class="paused-icon">&#9208;</div>
+      <p class="paused-title">Zee is resting</p>
+      <p class="paused-desc">Context tracking and proactive suggestions are off. Your transcript is preserved.</p>
+      <button id="resumeBtn" class="primary-btn">Resume</button>
+    </div>
+  </div>
+
+  <script>window.__DRL_CONSTANTS__ = { STT_CONFIDENCE_THRESHOLD: {{STT_CONFIDENCE_THRESHOLD}}, LEARN_MORE_DELAY_MS: {{LEARN_MORE_DELAY_MS}}, META_MODE_PILL: {{META_MODE_PILL_JSON}} };</script>
+  <script src="{{faceUri}}"></script>
+  <script src="{{markdownUri}}"></script>
+  <script src="{{ttsPlaybackUri}}"></script>
+  <script src="{{transcriptUri}}"></script>
+  <script src="{{voiceCaptureUri}}"></script>
+  <script src="{{voiceStatusReducerUri}}"></script>
+  <script src="{{tokenCounterUri}}"></script>
+  <script src="{{awarenessPillUri}}"></script>
+  <script src="{{thoughtCloudUri}}"></script>
+  <script src="{{inputKeyUri}}"></script>
+  <script src="{{jsUri}}"></script>
+</body>
+</html>

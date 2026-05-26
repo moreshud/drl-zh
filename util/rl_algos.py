@@ -18,7 +18,7 @@ from util.gymnastics import DEVICE
 #     General Algos
 # ---------------------
 def soft_update_model_params(src: nn.Module, dest: nn.Module, tau=1e-3):
-    """Soft updates model parameters (θ_dest = τ * θ_src + (1 - τ) * θ_src)."""
+    """Soft updates model parameters (θ_dest = τ * θ_src + (1 - τ) * θ_dest)."""
     for dest_param, src_param in zip(dest.parameters(), src.parameters()):
         dest_param.data.copy_(tau * src_param.data + (1.0 - tau) * dest_param.data)
 
@@ -184,8 +184,14 @@ class ReplayBuffer:
         return ReplayBuffer.unpack(experiences)
 
     def sample_all(self):
-        """Returns all samples available in the buffer."""
-        return self.sample(sample_size=len(self))
+        """Returns every stored transition exactly once, in insertion (FIFO) order.
+
+        NOTE: `sample()` uses `np.random.choice` *with replacement* (the default), so calling
+        `self.sample(sample_size=len(self))` would yield duplicates and miss some stored
+        transitions — fine for stochastic mini-batch training, but wrong for "give me everything"
+        callers (e.g. building a train/holdout split). We materialize the deque directly.
+        """
+        return ReplayBuffer.unpack(list(self.memory))
 
     @staticmethod
     def unpack(experiences: list[Experience]):
@@ -424,7 +430,17 @@ class AgentSAC:
         self.auto_entropy_tuning = loaded_params["auto_entropy_tuning"]
         if self.auto_entropy_tuning:
             self.target_entropy = loaded_params["target_entropy"]
-            self.log_alpha = loaded_params["log_alpha"]
+            # We replace `self.log_alpha` with the loaded tensor; the optimizer that was built
+            # in `__init__` still references the *old* tensor, so we re-create it. Without this,
+            # `alpha_optim.step()` would silently keep updating the discarded initial tensor and
+            # the loaded `log_alpha` would never receive gradient updates during continued
+            # training. The `.detach().clone().requires_grad_(True)` dance guarantees a fresh
+            # leaf tensor on `DEVICE` that autograd will accept as an optimization target.
+            loaded_log_alpha = loaded_params["log_alpha"].detach().clone().to(DEVICE)
+            loaded_log_alpha.requires_grad_(True)
+            self.log_alpha = loaded_log_alpha
+            alpha_lr = self.alpha_optim.param_groups[0]["lr"]
+            self.alpha_optim = optim.Adam([self.log_alpha], lr=alpha_lr)
             self.alpha = self.log_alpha.exp().item()
 
 

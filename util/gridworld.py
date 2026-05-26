@@ -83,13 +83,13 @@ class GridMDP:
     def reward(self, state: State, action: Action, next_state: State) -> float:
         match self.grid[next_state.pos()]:
             case Cell.TARGET:
-                return 1.0 * self.gamma
+                return 1.0
             case Cell.GLORY:
-                return 10.0 * self.gamma
+                return 10.0
             case Cell.BOMB:
-                return -1.0 * self.gamma
+                return -1.0
             case Cell.NUKE:
-                return -10.0 * self.gamma
+                return -10.0
             case _:
                 return 0.0
 
@@ -129,11 +129,11 @@ class GridMDP:
 class GridEnv:
     def __init__(self, mdp: GridMDP):
         self.mdp = mdp
-        self.state = State()
+        self.state = mdp.start
         self.terminated = False
 
     def reset(self) -> State:
-        self.state = State()
+        self.state = self.mdp.start
         self.terminated = False
         return self.state
 
@@ -348,7 +348,7 @@ def run_simulation(mdp, policy, max_iterations=20, frames_per_state=10):
 
     # Temporary workaround to avoid:
     #   UserWarning: Animation was deleted without rendering anything.
-    f = os.path.join(tempfile.tempdir, "rl_animation.gif")
+    f = os.path.join(tempfile.gettempdir(), "rl_animation.gif")
     writergif = animation.PillowWriter(fps=20)
     anim.save(f, writer=writergif)
     plt.close()

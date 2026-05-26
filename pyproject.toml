@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "drl-zh"
-version = "1.0.0"
+version = "2.0.0"
 package-mode = false
 description = "Deep Reinforcement Learning: Zero to Hero!"
 authors = ["Alessio Della Motta <alessio.dellamotta@gmail.com>"]
@@ -8,42 +8,44 @@ license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.12,<3.13"
+# Python is held at 3.13 because ale-py has no wheels for 3.14 yet (every other
+# dependency here supports 3.14).
+python = ">=3.13,<3.14"
 gymnasium = { extras = [
-    "accept-rom-license",
     "atari",
-    "ale-py",
     "box2d",
     "mujoco",
     "other",
-], version = "^1.1.1" }
-ale-py = "^0.9.1"
-pygame = "^2.5.2"
-matplotlib = "^3.8.2"
-ipykernel = "^6.29.5"
-ipywidgets = "^8.1.5"
-notebook = "^7.4.3"
+], version = "^1.3.0" }
+ale-py = "^0.11.2"
+# pygame-ce is the maintained community fork; pettingzoo 1.26 and gymnasium 1.3
+# both moved to it. It installs into the same `pygame` import namespace.
+pygame-ce = "^2.5.7"
+matplotlib = "^3.10.9"
+ipykernel = "^7.2.0"
+ipywidgets = "^8.1.8"
+notebook = "^7.5.6"
 moviepy = "^2.2.1"
-mujoco = "^3.3.3"
-torch = "^2.7.1"
-torchrl = "^0.5.0"
-pandas = "^2.2.0"
-peft = "^0.14.0"
-minigrid = "^3.0.0"
-pettingzoo = "^1.25.0"
-pymunk = "^6.10.0"
+mujoco = "^3.8.1"
+torch = "^2.12.0"
+pandas = "^3.0.3"
+peft = "^0.19.1"
+minigrid = "^3.1.0"
+pettingzoo = "^1.26.1"
+# MPE environments were split out of PettingZoo 1.26 into their own package.
+mpe2 = "^1.1.0"
+pymunk = "^7.2.0"
 supersuit = "^3.10.0"
-transformers = "^4.48.0"
+transformers = "^5.9.0"
 # Adding the Poetry dependency to work within a virtual environment, and avoiding Poetry to
 # uninstall itself when syncing deps with `install --sync`...
-poetry = "^2.1.3"
+poetry = "^2.4.1"
 seaborn = "^0.13.2"
-ray = {extras = ["default"], version = "^2.48.0"}
-optuna = "^4.4.0"
-plotly = "^6.2.0"
-kaleido = "^1.0.0"
+ray = {extras = ["default"], version = "^2.55.1"}
+optuna = "^4.8.0"
+plotly = "^6.7.0"
+kaleido = "^1.3.0"
 tensorboard = "^2.20.0"
-scikit-learn = "^1.7.1"
 
 [tool.black]
 line-length = 100

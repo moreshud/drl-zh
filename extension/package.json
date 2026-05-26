@@ -1,0 +1,79 @@
+{
+  "name": "drl-zh-companion",
+  "displayName": "DRL-ZH AI Companion",
+  "description": "Context-aware AI learning companion for the Deep Reinforcement Learning: Zero to Hero course",
+  "version": "0.1.0",
+  "publisher": "drl-zh",
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": [
+    "Education",
+    "Other"
+  ],
+  "activationEvents": [
+    "onView:drlCompanion.chatView",
+    "onCommand:drlCompanion.open",
+    "onCommand:drlCompanion.clearHistory",
+    "onCommand:drlCompanion.settings"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "drl-companion",
+          "title": "DRL-ZH Companion",
+          "icon": "assets/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "drl-companion": [
+        {
+          "type": "webview",
+          "id": "drlCompanion.chatView",
+          "name": "AI Companion"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "drlCompanion.open",
+        "title": "DRL: Open AI Companion"
+      },
+      {
+        "command": "drlCompanion.clearHistory",
+        "title": "DRL: Clear Conversation History"
+      },
+      {
+        "command": "drlCompanion.settings",
+        "title": "DRL: Companion Settings"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "tsc -p ./tsconfig.json",
+    "watch": "tsc -watch -p ./tsconfig.json",
+    "lint": "eslint src --ext ts",
+    "package": "npx vsce package -o companion.vsix",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@google/generative-ai": "^0.21.0",
+    "@huggingface/transformers": "^3.8.1",
+    "kokoro-js": "^1.2.1",
+    "openai": "^4.77.0",
+    "uuid": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/uuid": "^10.0.0",
+    "@types/vscode": "^1.100.0",
+    "happy-dom": "^20.9.0",
+    "typescript": "^5.3.0",
+    "vitest": "^3.1.0"
+  }
+}
